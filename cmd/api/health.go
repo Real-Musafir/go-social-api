@@ -8,5 +8,5 @@ import (
 func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Request){
 
 	fmt.Print("Come here to run")
-	w.Write([]byte("ok"))
+	w.Write([]byte("OKKK OKKKK"))
 }
