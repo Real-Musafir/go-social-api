@@ -1,11 +1,15 @@
 package main
 
-import "log"
+import (
+	"log"
+
+	env "github.com/Real-Musafir/social/internal"
+)
 
 func main() {
 
 	cfg := config {
-		addr: ":8080",
+		addr: env.GetString("ADDR", ":8080"),
 	}
 
 	app := &application{
