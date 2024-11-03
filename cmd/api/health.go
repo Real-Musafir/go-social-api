@@ -9,4 +9,6 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 
 	fmt.Print("Come here to run")
 	w.Write([]byte("OKKK OKKKK"))
+
+	
 }
