@@ -17,8 +17,15 @@ type application struct {
 
 type config struct {
 	addr string 
+	db dbConfig
 }
 
+type dbConfig struct {
+	addr 			string
+	maxOpenConns 	int
+	maxIdleConnes 	int
+	maxIdleTime 	string
+}
 
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
