@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	env "github.com/Real-Musafir/social/internal"
+	env "github.com/Real-Musafir/social/internal/env"
 )
 
 func main() {
