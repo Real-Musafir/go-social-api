@@ -15,3 +15,5 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 		writeJSONError(w, http.StatusInternalServerError, "err.Error()")
 	}
 }
+
+
