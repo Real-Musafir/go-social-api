@@ -6,7 +6,7 @@ import (
 )
 
 
-type UsersStore struct {
+type UserStore struct {
 	db *sql.DB
 }
 
@@ -18,7 +18,7 @@ type User struct {
 	CreatedAt 	string		`json:"created_at"`
 }
 
-func (s *UsersStore) Create(ctx context.Context, user *User) error {
+func (s *UserStore) Create(ctx context.Context, user *User) error {
 
 	query := `
 				INSERT INTO posts (username, password, email)

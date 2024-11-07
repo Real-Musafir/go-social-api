@@ -13,10 +13,11 @@ type Post struct {
 	ID 			int16		`json:"id"`
 	Content 	string		`json:"content"`
 	Title 		string		`json:"title"`
-	UserId 		int16		`json:"user_id"`
+	UserID 		int16		`json:"user_id"`
 	Tags 		[]string	`json:"tags"`
 	CreatedAt 	string		`json:"created_at"`
 	UpdatedAt 	string		`json:"updated_at"`
+	Comments 	[]Comment	`json:"comments"`
 }
 
 type PostStore struct {
@@ -34,7 +35,7 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		query,
 		post.Content,
 		post.Title,
-		post.UserId,
+		post.UserID,
 		pq.Array(post.Tags),
 	).Scan(
 		&post.ID,
@@ -59,7 +60,7 @@ func (s *PostStore) GetById(ctx context.Context, id int64) (*Post, error) {
 	var post Post
 	err := s.db.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
-		&post.UserId,
+		&post.UserID,
 		&post.Title,
 		&post.Content,
 		&post.CreatedAt,

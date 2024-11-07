@@ -34,7 +34,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		Title: payload.Title,
 		Content: payload.Content,
 		Tags: payload.Tags,
-		UserId: 1,
+		UserID: 1,
 	}
 	
 	ctx := r.Context()
@@ -71,6 +71,14 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request){
 
 		return
 	}
+
+	comments, err := app.store.Comments.GetByPostID(ctx, id)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	post.Comments = comments
 
 
 	if err := writeJSON(w, http.StatusOK, post); err != nil {
