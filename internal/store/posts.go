@@ -80,3 +80,25 @@ func (s *PostStore) GetById(ctx context.Context, id int64) (*Post, error) {
 
 	return &post, nil
 }
+
+func (s *PostStore) Delete(ctx context.Context, postID int64) error {
+	query := `DELETE FROM posts where id = $1`
+
+	res, err := s.db.ExecContext(ctx, query, postID) //here ExecContext because we don't want to return anthing from db table
+
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
