@@ -8,17 +8,16 @@ import (
 	"github.com/lib/pq"
 )
 
-
 type Post struct {
-	ID 			int16		`json:"id"`
-	Content 	string		`json:"content"`
-	Title 		string		`json:"title"`
-	UserID 		int16		`json:"user_id"`
-	Tags 		[]string	`json:"tags"`
-	CreatedAt 	string		`json:"created_at"`
-	UpdatedAt 	string		`json:"updated_at"`
-	Version 	int			`json:"version"`    //This is for in concorency time db operation controled
-	Comments 	[]Comment	`json:"comments"`
+	ID        int64     `json:"id"`
+	Content   string    `json:"content"`
+	Title     string    `json:"title"`
+	UserID    int64     `json:"user_id"`
+	Tags      []string  `json:"tags"`
+	CreatedAt string    `json:"created_at"`
+	UpdatedAt string    `json:"updated_at"`
+	Version   int       `json:"version"`
+	Comments  []Comment `json:"comments"`
 }
 
 type PostStore struct {
@@ -27,9 +26,9 @@ type PostStore struct {
 
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
 	query := `
-				INSERT INTO posts (content, title, user_id, tags)
-				VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
-			`
+		INSERT INTO posts (content, title, user_id, tags)
+		VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
+	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
@@ -46,17 +45,16 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		&post.CreatedAt,
 		&post.UpdatedAt,
 	)
-
-	if err!= nil {
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *PostStore) GetById(ctx context.Context, id int64) (*Post, error) {
+func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 	query := `
-		SELECT id, user_id, title, content, created_at, updated_at, tags, version
+		SELECT id, user_id, title, content, created_at,  updated_at, tags, version
 		FROM posts
 		WHERE id = $1
 	`
@@ -75,14 +73,12 @@ func (s *PostStore) GetById(ctx context.Context, id int64) (*Post, error) {
 		pq.Array(&post.Tags),
 		&post.Version,
 	)
-
-
-	if err!= nil {
-		switch  {
+	if err != nil {
+		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, ErrNotFound
 		default:
-		return nil, err
+			return nil, err
 		}
 	}
 
@@ -90,19 +86,17 @@ func (s *PostStore) GetById(ctx context.Context, id int64) (*Post, error) {
 }
 
 func (s *PostStore) Delete(ctx context.Context, postID int64) error {
-	query := `DELETE FROM posts where id = $1`
+	query := `DELETE FROM posts WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	res, err := s.db.ExecContext(ctx, query, postID) //here ExecContext because we don't want to return anthing from db table
-
+	res, err := s.db.ExecContext(ctx, query, postID)
 	if err != nil {
 		return err
 	}
 
 	rows, err := res.RowsAffected()
-
 	if err != nil {
 		return err
 	}
@@ -126,20 +120,21 @@ func (s *PostStore) Update(ctx context.Context, post *Post) error {
 	defer cancel()
 
 	err := s.db.QueryRowContext(
-			ctx,
-			query, 
-			post.Title,
-			post.Content,
-			post.ID,
-			post.Version).Scan(&post.Version)
-
+		ctx,
+		query,
+		post.Title,
+		post.Content,
+		post.ID,
+		post.Version,
+	).Scan(&post.Version)
 	if err != nil {
-		switch{
+		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			return ErrNotFound
 		default:
 			return err
 		}
 	}
+
 	return nil
 }
