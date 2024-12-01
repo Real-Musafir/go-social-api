@@ -41,7 +41,10 @@ func (s *PostStore) GetUserFeed(ctx context.Context,userID int64, fq PaginateFee
 		LEFT JOIN comments c ON c.post_id = p.id
 		left join users u on p.user_id = u.id
 		join followers f on f.follower_id = p.user_id  or p.user_id = $1
-		where f.user_id = $1 or p.user_id = $1
+		where
+			f.user_id = $1 or p.user_id = $1 AND
+			(p.title ILIKE '%' || $4 || '%' OR p.content ILIKE '%' || $4 || '%') AND
+			(p.tags @> $5 OR $5 = '{}')
 		group by p.id, u.username 
 		order by p.created_at ` + fq.Sort +`
 		LIMIT $2 OFFSET $3
@@ -50,7 +53,7 @@ func (s *PostStore) GetUserFeed(ctx context.Context,userID int64, fq PaginateFee
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := s.db.QueryContext(ctx, query, userID, fq.Limit, fq.Offset)
+	rows, err := s.db.QueryContext(ctx, query, userID, fq.Limit, fq.Offset, fq.Search, pq.Array(fq.Tags))
 
 	if err != nil {
 		return nil, err
